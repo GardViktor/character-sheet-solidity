@@ -3,69 +3,66 @@ pragma solidity ^0.8.30;
 
 contract CharacterSheet {
     // State variables
-    string name;
-    uint8 age8;
-    string gender;
-    string class;
+    string private nameChar;
+    string private class;
+    // Background
     uint8 public level = 1;
-    uint32 public xp;
-
-    // Structs
+    string private race;
+    // Alignment
+    string private gender;
+    uint8 private age8;
+    string private namePlayer;
+    uint32 public xp32;
+    
     struct Weapons {
         string weapon;   
     }
     
     struct StatusBase {
         uint8 hp8;
-        uint8 stamine8;
+        uint8 stamina8;
         uint8 mana8;
-        uint8 forca8;
-        uint8 inteligencia8;
-        uint8 defesa8;
-        uint8 agilidade8;
+        uint8 str8;
+        uint8 intel8;
+        uint8 def8;
+        uint8 agi8;
     }
 
-    // Arrays and mappings
     Weapons[] public Inventory;
-    mapping (string => bool) public CheckInventory;
+    mapping(string => bool) public CheckInventory;
+    mapping(string => StatusBase) public classes;
 
     uint32[] private xpArray = [
-        0,       // nível 1
-        300,     // nível 2
-        900,     // nível 3
-        2700,    // nível 4
-        6500,    // nível 5
-        14000,   // nível 6
-        23000,   // nível 7
-        34000,   // nível 8
-        48000,   // nível 9
-        64000,   // nível 10
-        85000,   // nível 11
-        100000,  // nível 12
-        120000,  // nível 13
-        140000,  // nível 14
-        165000,  // nível 15
-        195000,  // nível 16
-        225000,  // nível 17
-        265000,  // nível 18
-        305000,  // nível 19
-        355000   // nível 20
+        0, 300, 900, 2700, 6500, 14000, 23000, 34000, 48000, 64000,
+        85000, 100000, 120000, 140000, 165000, 195000, 225000, 265000, 305000, 355000
     ];
 
-    // Initial values
-    StatusBase public beginner = StatusBase(20, 10, 5, 5, 5, 5, 5);
-
-    // Constructor
-    constructor (string memory _name, uint8 _age8, string memory _gender, string memory _class) {
-        name = _name;
-        age8 = _age8;
-        gender = _gender;
+    constructor(string memory _nameChar, string memory _class, string memory _race, string memory _gender, uint8 _age8, string memory _namePlayer) {
+        nameChar = _nameChar;
         class = _class;
+        race = _race;
+        gender = _gender;
+        age8 = _age8;
+        namePlayer = _namePlayer;
+        
+        // Define os status base de cada classe
+        classes["Artificer"] = StatusBase(13,12,14,10,16,12,10);
+        classes["Barbarian"] = StatusBase(18,16,4,18,6,16,8);
+        classes["Bard"] = StatusBase(12,10,14,8,12,10,14);
+        classes["Cleric"] = StatusBase(14,12,14,10,12,14,10);
+        classes["Druid"] = StatusBase(13,10,15,8,14,12,10);
+        classes["Fighter"] = StatusBase(16,14,6,16,8,14,10);
+        classes["Monk"] = StatusBase(13,16,6,12,10,10,18);
+        classes["Paladin"] = StatusBase(16,12,10,16,10,16,8);
+        classes["Ranger"] = StatusBase(14,14,8,12,10,12,16);
+        classes["Rogue"] = StatusBase(12,14,6,10,10,10,18);
+        classes["Sorcerer"] = StatusBase(10,8,18,6,18,8,10);
+        classes["Warlock"] = StatusBase(11,10,17,8,17,9,11);
+        classes["Wizard"] = StatusBase(10,8,18,6,20,8,10);
     }
 
-    // Functions
-    function getInfo() public view returns (string memory, uint8, string memory, string memory, uint8) {
-        return (name, age8, gender, class, level);
+    function getInfo() public view returns (string memory, string memory, uint8, string memory, string memory, uint8, string memory, uint32) {
+        return (nameChar, class, level, race, gender, age8, namePlayer, xp32);
     }
 
     function addWeapon(string memory _weapon) public {
@@ -73,30 +70,25 @@ contract CharacterSheet {
         CheckInventory[_weapon] = true;
     }
 
+    function getStatus() public view returns (StatusBase memory) {
+        return classes[class];
+    }
+
     function gainXp(uint32 amount) public {
-        xp += amount;
-
-        // trava o XP máximo
-        if (xp > 355000) {
-            xp = 355000;
-        }
-
+        xp32 += amount;
+        if (xp32 > 355000) xp32 = 355000;
         levelUp();
     }
 
     function levelUp() private {
         uint8 newLevel = 1;
-
         for (uint8 i = uint8(xpArray.length); i > 0; i--) {
-            if (xp >= xpArray[i - 1]) {
+            if (xp32 >= xpArray[i - 1]) {
                 newLevel = i;
-                break; // encontrou o nível, sai do loop
+                break;
             }
         }
-
-        // atualiza somente se o nível subiu
-        if (newLevel > level) {
-            level = newLevel;
-        }
+        if (newLevel > level) level = newLevel;
     }
 }
+
