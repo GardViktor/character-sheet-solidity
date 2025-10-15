@@ -6,13 +6,14 @@ contract CharacterSheet {
     string private nameChar;
     string private class;
     // Background
-    uint8 public level = 1;
+    uint8 public level8 = 1;
     string private race;
     // Alignment
     string private gender;
     uint8 private age8;
     string private namePlayer;
     uint32 public xp32;
+    uint8 public proficiencyPoints8 = 2;
     
     struct Weapons {
         string weapon;   
@@ -31,7 +32,7 @@ contract CharacterSheet {
     Weapons[] public Inventory;
     mapping(string => bool) public CheckInventory;
     mapping(string => StatusBase) public classes;
-
+    
     uint32[] private xpArray = [
         0, 300, 900, 2700, 6500, 14000, 23000, 34000, 48000, 64000,
         85000, 100000, 120000, 140000, 165000, 195000, 225000, 265000, 305000, 355000
@@ -45,7 +46,6 @@ contract CharacterSheet {
         age8 = _age8;
         namePlayer = _namePlayer;
         
-        // Define os status base de cada classe
         classes["Artificer"] = StatusBase(13,12,14,10,16,12,10);
         classes["Barbarian"] = StatusBase(18,16,4,18,6,16,8);
         classes["Bard"] = StatusBase(12,10,14,8,12,10,14);
@@ -62,7 +62,7 @@ contract CharacterSheet {
     }
 
     function getInfo() public view returns (string memory, string memory, uint8, string memory, string memory, uint8, string memory, uint32) {
-        return (nameChar, class, level, race, gender, age8, namePlayer, xp32);
+        return (nameChar, class, level8, race, gender, age8, namePlayer, xp32);
     }
 
     function addWeapon(string memory _weapon) public {
@@ -78,6 +78,25 @@ contract CharacterSheet {
         xp32 += amount;
         if (xp32 > 355000) xp32 = 355000;
         levelUp();
+        proficiencyBonus(); 
+    }
+
+    function proficiencyBonus() private {
+        if (level8 <= 4) {
+            proficiencyPoints8 = 2;
+        }
+        else if (level8 <= 8) {
+            proficiencyPoints8 = 3;
+        }
+        else if (level8 <= 12) {
+            proficiencyPoints8 = 4;
+        } 
+        else if (level8 <= 16) {
+            proficiencyPoints8 = 5;
+        }
+        else {
+            proficiencyPoints8 = 6;
+        } 
     }
 
     function levelUp() private {
@@ -88,7 +107,10 @@ contract CharacterSheet {
                 break;
             }
         }
-        if (newLevel > level) level = newLevel;
-    }
+
+        if (newLevel > level8) {
+        level8 = newLevel;
+        }     
+    }    
 }
 
